@@ -14,7 +14,14 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
-    "paths": {}
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "paths": {
+      "@microservices/shared/log": ["libs/shared/log/src/index.ts"],
+      "@microservices/shared/types": ["libs/shared/types/src/index.ts"],
+      "@microservices/shared/utils": ["libs/shared/utils/src/index.ts"],
+      "@microservices/api/user-sdk": ["libs/api/user-sdk/src/index.ts"]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }

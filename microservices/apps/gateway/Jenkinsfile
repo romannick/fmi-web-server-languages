@@ -1,0 +1,52 @@
+pipeline {
+  agent any
+  environment {
+    project = "gateway"
+    imageTag = "${IMAGE_TAG}"
+  }
+  stages {
+    stage('Clean WS') {
+      steps {
+        deleteDir()
+      }
+    }
+    stage('Git checkout') {
+      steps {
+        checkout scm
+      }
+    }
+
+
+    stage('Docker Build') {
+      when {
+        anyOf {
+          branch 'main'
+
+        }
+      }
+      steps {
+        script {
+
+          withCredentials([usernamePassword(credentialsId: 'trading-ci-token', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+            docker.withRegistry("https://748338773816.dkr.ecr.us-east-1.amazonaws.com/", "ecr:us-east-1:algotrading-ecr-aws") {
+              sh("docker build  \$(cat apps/${project}/ci/swapless-${project}-config | sed 's@^@--build-arg @g' | paste -s -d \" \") . --no-cache -t  748338773816.dkr.ecr.us-east-1.amazonaws.com/swapless/${project}:${imageTag}  ")
+              sh("docker push 748338773816.dkr.ecr.us-east-1.amazonaws.com/swapless/${project}:${imageTag}")
+
+            }
+          }
+        }
+      }
+    }
+    stage('Tag Repository') {
+      when {
+        branch 'main'
+      }
+      steps {
+        script {
+            sh "git tag ${project}-${imageTag}"
+            sh "git push origin ${project}-${imageTag}"
+          }
+      }
+    }
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "root": true,
+  "ignorePatterns": ["**/*"],
+  "plugins": ["@nrwl/nx", "import"],
+  "extends": ["plugin:import/warnings", "plugin:import/typescript", "plugin:prettier/recommended"],
+  "rules": {
+    "import/newline-after-import": ["warn"],
+    "import/no-anonymous-default-export": "off",
+    "import/no-duplicates": [1],
+    "import/no-named-as-default": "off",
+    "import/no-named-as-default-member": [1],
+    "import/order": [
+      "warn",
+      {
+        "groups": [["builtin", "external"], "internal", "parent", ["sibling", "index"]],
+        "newlines-between": "always",
+        "pathGroups": [
+          {
+            "group": "internal",
+            "pattern": "@storyfile-platform/**",
+            "position": "after"
+          }
+        ],
+        "pathGroupsExcludedImportTypes": ["builtin"]
+      }
+    ],
+    "@typescript-eslint/array-type": "warn",
+    "@typescript-eslint/consistent-type-definitions": ["warn", "interface"],
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/prefer-for-of": "warn",
+    "@typescript-eslint/unified-signatures": "warn",
+    "arrow-body-style": ["warn", "as-needed"],
+    "dot-notation": ["warn"],
+    "no-duplicate-imports": "warn",
+    "no-undef-init": "warn",
+    "object-shorthand": "warn",
+    "prefer-const": "warn",
+    "prefer-destructuring": ["warn"],
+    "prettier/prettier": "warn",
+    "no-constructor-return": "error",
+    "no-else-return": ["warn"],
+    "no-useless-catch": "warn",
+    "no-useless-escape": "warn",
+    "require-await": "warn",
+    "yoda": "warn"
+  },
+  "overrides": [
+    {
+      "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
+      "rules": {
+        "@nrwl/nx/enforce-module-boundaries": [
+          "error",
+          {
+            "enforceBuildableLibDependency": true,
+            "allow": [],
+            "depConstraints": [{ "sourceTag": "*", "onlyDependOnLibsWithTags": ["*"] }]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["*.ts", "*.tsx"],
+      "extends": ["plugin:@nrwl/nx/typescript"],
+      "parserOptions": { "project": "./tsconfig.*?.json" },
+      "rules": {}
+    },
+    {
+      "files": ["*.js", "*.jsx"],
+      "extends": ["plugin:@nrwl/nx/javascript"],
+      "rules": {}
+    }
+  ]
+}
