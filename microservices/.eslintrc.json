@@ -29,6 +29,7 @@
     "@typescript-eslint/explicit-function-return-type": "off",
     "@typescript-eslint/prefer-for-of": "warn",
     "@typescript-eslint/unified-signatures": "warn",
+    "@typescript-eslint/no-empty-interface": "off",
     "arrow-body-style": ["warn", "as-needed"],
     "dot-notation": ["warn"],
     "no-duplicate-imports": "warn",

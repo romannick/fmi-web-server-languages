@@ -2,9 +2,9 @@ import express from 'express'
 import asyncHandler from 'express-async-handler'
 import { Container } from 'typedi'
 import { Request, Response } from '@microservices/shared/types'
+import { HelloWorldRequest, HelloWorldResponse } from '@microservices/api/user-sdk'
 
 import { AppService } from '../../../services/greetings_service'
-import { HelloWorldRequest, HelloWorldResponse } from '@microservices/api/user-sdk'
 
 const router = express.Router()
 const appService = Container.get(AppService)

@@ -1,19 +1,19 @@
 {
-  "sourceRoot": "libs/shared/db/src",
+  "sourceRoot": "libs/shared/log/src",
   "projectType": "library",
   "targets": {
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["libs/shared/db/**/*.ts"]
+        "lintFilePatterns": ["libs/shared/log/**/*.ts"]
       }
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/libs/shared/db"],
+      "outputs": ["coverage/libs/shared/log"],
       "options": {
-        "jestConfig": "libs/shared/db/jest.config.ts",
+        "jestConfig": "libs/shared/log/jest.config.ts",
         "passWithNoTests": true
       }
     }

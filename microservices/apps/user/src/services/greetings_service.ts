@@ -1,7 +1,6 @@
 import { Service } from 'typedi'
 import { logger } from '@microservices/shared/log'
-
-import { HelloWorldRequest, HelloWorldResponse } from "@microservices/api/user-sdk";
+import { HelloWorldRequest, HelloWorldResponse } from '@microservices/api/user-sdk'
 
 const log = logger('app_service')
 

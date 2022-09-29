@@ -17,9 +17,11 @@
     "express-winston": "^4.2.0",
     "jaeger-client": "^3.19.0",
     "reflect-metadata": "^0.1.13",
+    "sequelize": "^6.23.2",
     "tslib": "^2.3.0",
     "typedi": "^0.10.0",
-    "winston": "^3.8.1"
+    "winston": "^3.8.1",
+    "mysql2": "^2.2.5"
   },
   "devDependencies": {
     "@nrwl/cli": "14.1.4",
