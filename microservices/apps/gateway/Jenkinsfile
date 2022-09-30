@@ -1,5 +1,7 @@
 pipeline {
-  agent any
+  agent {
+    label 'jenkins-slave'
+  }
   environment {
     project = "gateway"
     imageTag = "${IMAGE_TAG}"
@@ -16,36 +18,60 @@ pipeline {
       }
     }
 
+    stage ('Npm Install') {
+      steps {
+        script {
+          sh "npm install"
+          currentBuild.setDisplayName("${project}-v${imageTag}" )
+        }
+      }
+    }
+
+    stage('Nx Build') {
+      steps {
+        script {
+          sh "nx build ${project} --configuration=production"
+        }
+      }
+    }
 
     stage('Docker Build') {
       when {
         anyOf {
-          branch 'main'
-
+          branch 'develop'
+          branch 'master'
         }
       }
       steps {
         script {
-
-          withCredentials([usernamePassword(credentialsId: 'trading-ci-token', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-            docker.withRegistry("https://748338773816.dkr.ecr.us-east-1.amazonaws.com/", "ecr:us-east-1:algotrading-ecr-aws") {
-              sh("docker build  \$(cat apps/${project}/ci/swapless-${project}-config | sed 's@^@--build-arg @g' | paste -s -d \" \") . --no-cache -t  748338773816.dkr.ecr.us-east-1.amazonaws.com/swapless/${project}:${imageTag}  ")
-              sh("docker push 748338773816.dkr.ecr.us-east-1.amazonaws.com/swapless/${project}:${imageTag}")
-
-            }
+          docker.withRegistry("https://613765377812.dkr.ecr.us-east-1.amazonaws.com", "ecr:us-east-1:storyfile-ecr-aws") {
+            sh("docker build --no-cache -t 613765377812.dkr.ecr.us-east-1.amazonaws.com/storyfile/${project}:${imageTag}  --build-arg APP=${project} .")
+            sh("docker push 613765377812.dkr.ecr.us-east-1.amazonaws.com/storyfile/${project}:${imageTag}")
+          }
+        }
+        withCredentials([usernamePassword(credentialsId: 'acrcredentials', passwordVariable: 'AZURE_REGISTRY_PASSWORD', usernameVariable: 'AZURE_REGISTRY_USERNAME')]) {
+          script {
+            sh("az acr login -n storyfile -u $AZURE_REGISTRY_USERNAME -p $AZURE_REGISTRY_PASSWORD")
+            sh("docker tag 613765377812.dkr.ecr.us-east-1.amazonaws.com/storyfile/${project}:${imageTag} storyfile.azurecr.io/storyfile/${project}:${imageTag} ")
+            sh("docker push storyfile.azurecr.io/storyfile/${project}:${imageTag}")
           }
         }
       }
     }
     stage('Tag Repository') {
       when {
-        branch 'main'
+        branch 'develop'
       }
       steps {
-        script {
+        withCredentials([usernamePassword(credentialsId: 'github-app-storyfile',
+          usernameVariable: 'GITHUB_APP',
+          passwordVariable: 'GITHUB_ACCESS_TOKEN')]) {
+          script {
+            sh 'git config --global url."https://x-oauth-basic:${GITHUB_ACCESS_TOKEN}@github.com/Storyfilellc/storyfile-platform.git".insteadof https://github.com/Storyfilellc/storyfile-platform.git'
             sh "git tag ${project}-${imageTag}"
             sh "git push origin ${project}-${imageTag}"
           }
+        }
       }
     }
   }

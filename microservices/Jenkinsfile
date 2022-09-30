@@ -4,12 +4,12 @@ pipeline {
   }
 
   parameters {
-    choice(name: 'service', choices: ['', 'backend'], description: 'Select service')
+    choice(name: 'service', choices: ['', 'gateway', 'user'], description: 'Select service')
     choice(name: 'automatically', choices: 'Yes\nNo', description: 'Do you wish to build automatically?')
   }
 
   environment {
-    project = 'swapless-backend'
+    project = 'microservices'
     service = "${SERVICE}"
   }
 
@@ -43,7 +43,7 @@ pipeline {
         allOf {
           expression { params.automatically != 'No' }
           not {
-            branch 'main'
+            branch 'develop'
           }
         }
       }
@@ -57,11 +57,11 @@ pipeline {
       }
     }
 
-    stage('AutoBuild affected services  ') {
+    stage('AutoBuild affected services for develop ') {
       when {
         allOf {
           expression { params.automatically != 'No' }
-          branch 'main'
+          branch 'develop'
         }
       }
       steps {
@@ -81,11 +81,11 @@ pipeline {
       steps {
         script {
           def branch = env.BRANCH_NAME
-          def buildNumber = Jenkins.instance.getItemByFullName("Swapless/swapless-backend-apps/${SERVICE}").getItem("${branch}").lastBuild.number + 1
+          def buildNumber = Jenkins.instance.getItemByFullName("microservices-apps/${SERVICE}").getItem("${branch}").lastBuild.number + 1
           println buildNumber
           def currentVersionScript = sh(script: "cat ./apps/${SERVICE}/package.json | grep 'version' | awk -F ':' '{print \$2}' |  cut -f 2 -d '\"' ", returnStdout: true).trim()
 
-          build job: "Swapless/swapless-backend-apps/${SERVICE}/${java.net.URLEncoder.encode branch, 'UTF-8'}", propagate: true, wait: true, parameters: [
+          build job: "microservices-apps/${SERVICE}/${java.net.URLEncoder.encode branch, 'UTF-8'}", propagate: true, wait: true, parameters: [
             string(name: 'IMAGE_TAG', value: "${currentVersionScript}-${buildNumber}")
           ]
           currentBuild.setDisplayName("${project} - ${SERVICE} - v${currentVersionScript} - ${buildNumber} ")
@@ -93,12 +93,29 @@ pipeline {
       }
     }
 
-  }
+
+    stage('AutoDeploy affected services ') {
+      when {
+        allOf {
+          expression { params.automatically != 'No' }
+          branch 'develop'
+        }
+      }
+        steps {
+          script {
+            getLastSuccessfulCommit()
+            services = getDeploy()
+            println services
+            parallel services
+          }
+        }
+      }
+    }
 }
 
 @NonCPS
 def getJenkinsBuildNumber(service, branch) {
-  def job = Jenkins.instance.getItemByFullName("swapless-backend-apps/${service}").getItem("${java.net.URLEncoder.encode branch, 'UTF-8'}")
+  def job = Jenkins.instance.getItemByFullName("microservices-apps/${service}").getItem("${java.net.URLEncoder.encode branch, 'UTF-8'}")
   if (job != null) {
     if (job.getLastBuild() != null) {
       return job.getLastBuild().number + 1
@@ -130,7 +147,7 @@ def getBuild() {
   def services = [:]
   def lastSuccessfulHash = getLastSuccessfulCommit()
   def AFFECTED_APPS = sh(
-    script: "npm run nx affected:apps -- --base=${lastSuccessfulHash} --head=origin/main --plain | grep -vi nx | sed '/^\$/d'",
+    script: "npm run nx affected:apps -- --base=${lastSuccessfulHash} --head=origin/develop --plain | grep -vi nx | sed '/^\$/d'",
     returnStdout: true).trim().replace('\n', ' ')
   def Af = AFFECTED_APPS.split(' ')
   for (app in Af) {
@@ -140,13 +157,36 @@ def getBuild() {
     def currentVersionScript = sh(script: "cat ./apps/${i}/package.json | grep 'version' | awk -F ':' '{print \$2}' |  cut -f 2 -d '\"' ", returnStdout: true).trim()
     def buildNumber = getJenkinsBuildNumber(i, branch)
     print(buildNumber)
-    services["Build ${i}"] = { build job: "Swapless/swapless-backend-apps/${i}/${java.net.URLEncoder.encode branch, 'UTF-8'}", propagate: true, wait: true, parameters: [
-      string(name: 'IMAGE_TAG', value: "${currentVersionScript}-${buildNumber}")
-    ]
+    services["Build ${i}"] = { build job: "microservices-apps/${i}/${java.net.URLEncoder.encode branch, 'UTF-8'}", propagate: true, wait: true, parameters: [
+        string(name: 'IMAGE_TAG', value: "${currentVersionScript}-${buildNumber}")
+      ]
     }
   }
   return services
 }
 
-
+def getDeploy() {
+  def services = [:]
+  def lastSuccessfulHash = getLastSuccessfulCommit()
+  def AFFECTED_APPS = sh(
+    script: "npm run nx affected:apps -- --base=${lastSuccessfulHash} --head=origin/develop --plain | grep -vi nx | sed '/^\$/d'",
+    returnStdout: true).trim().replace('\n', ' ')
+  def Af = AFFECTED_APPS.split(' ')
+  for (app in Af) {
+    def i = app.replace(' ', '')
+    println i
+    def branch = env.BRANCH_NAME
+    def currentVersionScript = sh(script: "cat ./apps/${i}/package.json | grep 'version' | awk -F ':' '{print \$2}' |  cut -f 2 -d '\"' ", returnStdout: true).trim()
+    def buildNumber = getJenkinsBuildNumber(i, branch) - 1
+    print(buildNumber)
+    services["Build ${i}"] = { build job: "deploy/microservices-dev", propagate: true, wait: true, parameters: [
+        string(name: 'manually', value: "No"),
+        string(name: 'SERVICE', value: "microservices-${i}"),
+        string(name: 'SERVICE_TAG_INPUT', value: "${currentVersionScript}-${buildNumber}"),
+        string(name: 'SERVICE_COUNT_INPUT', value: "1"),
+      ]
+    }
+  }
+  return services
+}
 

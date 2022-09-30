@@ -9,6 +9,7 @@ import { Response } from '@microservices/shared/types'
 import { handleError } from '@microservices/shared/utils'
 
 import registerApiEndpoints from './api/router'
+import { config } from './config/config'
 
 const startApp = () => {
   const log = logger('app')
@@ -17,7 +18,6 @@ const startApp = () => {
   initGlobalTracer(tracer)
 
   const app = express()
-  const port = process.env.PORT
 
   app.use(bodyParser.json())
   app.use(cors())
@@ -27,8 +27,8 @@ const startApp = () => {
   configureExpressWinston(app, log)
   registerApiEndpoints(app)
 
-  const server = app.listen(port, () =>
-    console.log(`Started Microservices Gateway at localhost:${port}`)
+  const server = app.listen(config.port, () =>
+    console.log(`Started Microservices Gateway at localhost:${config.port}`)
   )
 
   server.on('error', console.error)
