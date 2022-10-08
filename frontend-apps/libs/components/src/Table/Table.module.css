@@ -1,0 +1,58 @@
+.tableHeader {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 5px;
+  justify-content: space-between;
+}
+
+.tableContainer {
+  color: #f1f1f2;
+  text-align: center;
+  display: flex;
+}
+
+.table {
+  border-radius: 8px;
+  opacity: 0.9;
+}
+
+.table tr td {
+  border-bottom: 1px solid #e8e8e8;
+  padding: 6px 10px;
+}
+
+.inner {
+  padding: 10px 20px;
+  background-color: #041b44;
+  border-radius: 8px;
+}
+
+.onTrHover:hover {
+  background-color: #093f5a;
+}
+
+.tableLoading {
+  display: flex;
+  justify-content: center;
+}
+
+.hasPositionRow {
+  background-color: #985ca3;
+}
+
+.disabledRow {
+  background-color: gray;
+}
+
+.openCloseButton {
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  top: -6px;
+  position: relative;
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  left: 5px;
+}

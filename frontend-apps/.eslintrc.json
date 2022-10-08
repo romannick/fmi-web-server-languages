@@ -1,0 +1,127 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "ignorePatterns": ["**/*"],
+  "plugins": ["@nrwl/nx", "import", "@typescript-eslint"],
+  "extends": [
+    "plugin:import/recommended",
+    "plugin:import/warnings",
+    "plugin:import/typescript",
+    "plugin:prettier/recommended",
+    "eslint:recommended",
+    "next/core-web-vitals"
+  ],
+  "rules": {
+    "import/newline-after-import": "warn",
+    "import/no-duplicates": 1,
+    "import/no-named-as-default-member": 1,
+    "import/order": [
+      "warn",
+      {
+        "groups": [["builtin", "external"], "parent", ["sibling", "index"]],
+        "newlines-between": "always",
+        "pathGroupsExcludedImportTypes": ["builtin"]
+      }
+    ],
+    "import/no-anonymous-default-export": "off",
+    "import/no-named-as-default": "off",
+    "@typescript-eslint/no-empty-interface": [
+      "warn",
+      {
+        "allowSingleExtends": false
+      }
+    ],
+    "@typescript-eslint/no-unnecessary-type-constraint": "warn",
+    "@typescript-eslint/no-parameter-properties": "warn",
+    "@typescript-eslint/no-non-null-assertion": "warn",
+    "@typescript-eslint/no-non-null-asserted-optional-chain": "warn",
+    "@typescript-eslint/array-type": "warn",
+    "@typescript-eslint/prefer-for-of": "warn",
+    "@typescript-eslint/unified-signatures": "warn",
+    "@typescript-eslint/consistent-type-definitions": ["warn", "interface"],
+    "@typescript-eslint/no-misused-new": "error",
+    "@typescript-eslint/no-extra-non-null-assertion": "error",
+    "@typescript-eslint/no-unused-vars": "error",
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "arrow-body-style": ["warn", "as-needed"],
+    "no-template-curly-in-string": "warn",
+    "dot-notation": "warn",
+    "no-duplicate-imports": "warn",
+    "no-undef-init": "warn",
+    "object-shorthand": "warn",
+    "prefer-const": "warn",
+    "prefer-destructuring": "warn",
+    "prettier/prettier": "warn",
+    "no-else-return": "warn",
+    "no-useless-catch": "warn",
+    "no-useless-escape": "warn",
+    "require-await": "warn",
+    "yoda": "warn",
+    "default-param-last": "warn",
+    "no-eq-null": "warn",
+    "no-floating-decimal": "warn",
+    "no-return-await": "warn",
+    "no-self-compare": "warn",
+    "no-unmodified-loop-condition": "warn",
+    "no-unused-expressions": "warn",
+    "no-useless-return": "warn",
+    "no-lone-blocks": "error",
+    "no-return-assign": "error",
+    "no-throw-literal": "error",
+    "no-await-in-loop": "error",
+    "no-constructor-return": "error",
+    "no-use-before-define": "off",
+    "no-unused-vars": "off",
+    "import/namespace": "off",
+    "semi": "off",
+    "comma-dangle": "off",
+    "no-shadow": "off"
+  },
+  "overrides": [
+    {
+      "files": [
+        "*.ts",
+        "*.tsx",
+        "*.js",
+        "*.jsx"
+      ],
+      "rules": {
+        "@nrwl/nx/enforce-module-boundaries": [
+          "error",
+          {
+            "enforceBuildableLibDependency": true,
+            "allow": [],
+            "depConstraints": [
+              {
+                "sourceTag": "*",
+                "onlyDependOnLibsWithTags": [
+                  "*"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "*.ts",
+        "*.tsx"
+      ],
+      "extends": [
+        "plugin:@nrwl/nx/typescript"
+      ],
+      "rules": {}
+    },
+    {
+      "files": [
+        "*.js",
+        "*.jsx"
+      ],
+      "extends": [
+        "plugin:@nrwl/nx/javascript"
+      ],
+      "rules": {}
+    }
+  ]
+}

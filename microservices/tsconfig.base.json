@@ -20,9 +20,9 @@
       "@microservices/shared/log": ["libs/shared/log/src/index.ts"],
       "@microservices/shared/types": ["libs/shared/types/src/index.ts"],
       "@microservices/shared/utils": ["libs/shared/utils/src/index.ts"],
-      "@microservices/api/user-sdk": ["libs/api/user-sdk/src/index.ts"],
+      "@microservices/api/backend-sdk": ["libs/api/backend-sdk/src/index.ts"],
       "@microservices/db-models/db": ["libs/db-models/db/src/index.ts"],
-      "@microservices/db-models/user": ["libs/db-models/user/src/index.ts"]
+      "@microservices/db-models/backend": ["libs/db-models/backend/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

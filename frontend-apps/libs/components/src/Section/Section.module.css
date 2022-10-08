@@ -1,0 +1,11 @@
+.title {
+  font-weight: 600;
+  font-size: 30px;
+  color: white;
+  margin: 20px auto;
+}
+
+.children {
+  margin-top: 10px;
+  width: 100%;
+}

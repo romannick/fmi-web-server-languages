@@ -1,0 +1,10 @@
+.error {
+    color: darkred;
+    font-weight: 600;
+    margin-left: 2px;
+    margin-right: 2px;
+}
+
+.errorColor {
+    color: darkred;
+}

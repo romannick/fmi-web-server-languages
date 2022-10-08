@@ -1,0 +1,21 @@
+.wholeContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.labelLeft {
+  margin-right: 10px;
+}
+
+.labelRight {
+  margin-left: 10px;
+}
+
+.smallWidth {
+  width: 50px;
+}
+
+.disabled {
+  cursor: not-allowed;
+}

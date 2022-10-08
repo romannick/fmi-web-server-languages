@@ -1,0 +1,12 @@
+.innerContainer {
+  padding: 1px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+.container {
+  color: white;
+  padding: 20px 60px;
+  background-color: #041b44;
+  border-radius: 8px;
+}

@@ -1,0 +1,135 @@
+{
+  "version": 2,
+  "projects": {
+    "cars": {
+      "root": "apps/cars",
+      "sourceRoot": "apps/cars",
+      "projectType": "application",
+      "targets": {
+        "build": {
+          "executor": "@nrwl/next:build",
+          "outputs": [
+            "{options.outputPath}"
+          ],
+          "options": {
+            "root": "apps/cars",
+            "outputPath": "dist/apps/cars",
+            "styles": [
+              "apps/cars/globals.css"
+            ]
+          },
+          "configurations": {
+            "production": {}
+          }
+        },
+        "postbuild": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "commands": [
+              {
+                "command": "npx next-sitemap --config apps/cars/next-sitemap.js"
+              }
+            ]
+          }
+        },
+        "serve": {
+          "executor": "@nrwl/next:server",
+          "options": {
+            "buildTarget": "cars:build",
+            "dev": true
+          },
+          "configurations": {
+            "production": {
+              "buildTarget": "cars:build:production",
+              "dev": false
+            }
+          }
+        },
+        "export": {
+          "executor": "@nrwl/next:export",
+          "options": {
+            "buildTarget": "cars:build:production"
+          }
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": [
+              "apps/cars/**/*.{ts,tsx,js,jsx}"
+            ]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": [
+            "coverage/apps/cars"
+          ],
+          "options": {
+            "jestConfig": "apps/cars/jest.config.js",
+            "passWithNoTests": true
+          }
+        },
+        "build-tailwind-css": {
+          "executor": "@nrwl/workspace:run-commands",
+          "outputs": [],
+          "options": {
+            "command": "node ../../node_modules/.bin/postcss ./cars/styles.css -o ./cars/tailwind.css",
+            "cwd": "apps/cars"
+          }
+        }
+      },
+      "tags": [],
+      "implicitDependencies": [
+        "components",
+        "utils"
+      ]
+    },
+    "components": {
+      "$schema": "../../node_modules/nx/schemas/project-schema.json",
+      "root": "libs/components",
+      "sourceRoot": "libs/components/src",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": ["libs/components/**/*.ts"]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/libs/components"],
+          "options": {
+            "jestConfig": "libs/components/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      },
+      "tags": []
+    },
+    "utils": {
+      "$schema": "../../node_modules/nx/schemas/project-schema.json",
+      "root": "libs/utils",
+      "sourceRoot": "libs/utils/src",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": ["libs/utils/**/*.ts"]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/libs/utils"],
+          "options": {
+            "jestConfig": "libs/utils/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      },
+      "tags": []
+    }
+  },
+  "$schema": "./node_modules/nx/schemas/workspace-schema.json"
+}

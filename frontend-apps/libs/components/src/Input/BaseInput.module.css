@@ -1,0 +1,36 @@
+.inputContainer {
+  background-color: #000829;
+  color: #85858d;
+  padding: 10px 10px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+}
+
+.input {
+  background-color: transparent;
+  font-size: 16px;
+  border: 0;
+  color: white;
+  font-weight: 600;
+}
+
+/* Chrome, Safari, Edge, Opera */
+.input::-webkit-outer-spin-button,
+.input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+.input[type='number'] {
+  -moz-appearance: textfield;
+}
+
+.input:focus {
+  outline: none;
+}
+
+.disabled:hover {
+  cursor: not-allowed;
+}

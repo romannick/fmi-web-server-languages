@@ -1,0 +1,19 @@
+.wholeContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.labelLeft {
+  margin-right: 10px;
+  width: 50%;
+  text-align: initial;
+}
+
+.labelRight {
+  margin-left: 10px;
+}
+
+.fullWidth {
+  width: 100%
+}

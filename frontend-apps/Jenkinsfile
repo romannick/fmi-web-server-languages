@@ -1,0 +1,152 @@
+pipeline {
+  agent {
+    label 'jenkins-slave'
+  }
+
+  parameters {
+    choice(name: 'service', choices: ['', 'swapless-admin', 'swapless-app'], description: 'Select service')
+    choice(name: 'automatically', choices: 'Yes\nNo', description: 'Do you wish to build automatically?')
+  }
+
+  environment {
+    project = 'swapless-apps'
+    service = "${SERVICE}"
+  }
+
+  stages {
+    stage('Clean workspace') {
+      steps {
+        deleteDir()
+      }
+    }
+
+    stage('Git checkout') {
+      steps {
+        checkout scm
+      }
+    }
+
+    // To do nx affected auto build // Only Develop
+    stage('Install nx') {
+      when {
+        expression { params.automatically != 'No' }
+      }
+      steps {
+        script {
+          sh 'npm install'
+        }
+      }
+    }
+
+    stage('AutoBuild affected services ') {
+      when {
+        allOf {
+          expression { params.automatically != 'No' }
+          not {
+            branch 'main'
+          }
+        }
+      }
+      steps {
+        script {
+          getLastSuccessfulCommit()
+          services = getBuild()
+          println services
+          parallel services
+        }
+      }
+    }
+
+    stage('AutoBuild affected services  ') {
+      when {
+        allOf {
+          expression { params.automatically != 'No' }
+          branch 'main'
+        }
+      }
+      steps {
+        script {
+          getLastSuccessfulCommit()
+          services = getBuild()
+          println services
+          parallel services
+        }
+      }
+    }
+
+    stage('Build Service') {
+      when {
+        environment name: 'automatically', value: 'No'
+      }
+      steps {
+        script {
+          def branch = env.BRANCH_NAME
+          def buildNumber = Jenkins.instance.getItemByFullName("Swapless/swapless-apps-apps/${SERVICE}").getItem("${branch}").lastBuild.number + 1
+          println buildNumber
+          def currentVersionScript = sh(script: "cat ./apps/${SERVICE}/package.json | grep 'version' | awk -F ':' '{print \$2}' |  cut -f 2 -d '\"' ", returnStdout: true).trim()
+
+          build job: "Swapless/swapless-apps-apps/${SERVICE}/${java.net.URLEncoder.encode branch, 'UTF-8'}", propagate: true, wait: true, parameters: [
+            string(name: 'IMAGE_TAG', value: "${currentVersionScript}-${buildNumber}")
+          ]
+          currentBuild.setDisplayName("${project} - ${SERVICE} - v${currentVersionScript} - ${buildNumber} ")
+        }
+      }
+    }
+
+    }
+}
+
+@NonCPS
+def getJenkinsBuildNumber(service, branch) {
+  def job = Jenkins.instance.getItemByFullName("swapless-apps-apps/${service}").getItem("${java.net.URLEncoder.encode branch, 'UTF-8'}")
+  if (job != null) {
+    if (job.getLastBuild() != null) {
+      return job.getLastBuild().number + 1
+    }
+  }
+
+  return 1
+}
+
+
+@NonCPS
+def commitHashForBuild(build) {
+  def scmAction = build?.actions.find { action -> action instanceof jenkins.scm.api.SCMRevisionAction }
+  return scmAction?.revision?.hash
+}
+
+def getLastSuccessfulCommit() {
+  def lastSuccessfulHash = null
+  def lastSuccessfulBuild = Jenkins.instance.getItemByFullName(env.JOB_NAME).getLastSuccessfulBuild()
+  println lastSuccessfulBuild
+  if ( lastSuccessfulBuild ) {
+    lastSuccessfulHash = commitHashForBuild(lastSuccessfulBuild)
+  }
+  println lastSuccessfulHash
+  return lastSuccessfulHash
+}
+
+def getBuild() {
+  def services = [:]
+  def lastSuccessfulHash = getLastSuccessfulCommit()
+  def AFFECTED_APPS = sh(
+    script: "npm run nx affected:apps -- --base=${lastSuccessfulHash} --head=origin/main --plain | grep -vi nx | sed '/^\$/d'",
+    returnStdout: true).trim().replace('\n', ' ')
+  def Af = AFFECTED_APPS.split(' ')
+  for (app in Af) {
+    def i = app.replace(' ', '')
+    println i
+    def branch = env.BRANCH_NAME
+    def currentVersionScript = sh(script: "cat ./apps/${i}/package.json | grep 'version' | awk -F ':' '{print \$2}' |  cut -f 2 -d '\"' ", returnStdout: true).trim()
+    def buildNumber = getJenkinsBuildNumber(i, branch)
+    print(buildNumber)
+    services["Build ${i}"] = { build job: "Swapless/swapless-apps-apps/${i}/${java.net.URLEncoder.encode branch, 'UTF-8'}", propagate: true, wait: true, parameters: [
+        string(name: 'IMAGE_TAG', value: "${currentVersionScript}-${buildNumber}")
+      ]
+    }
+  }
+  return services
+}
+
+
+
